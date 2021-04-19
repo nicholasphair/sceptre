@@ -224,16 +224,9 @@ class Template(object):
             }
         )
 
-        china_regions = ["cn-north-1", "cn-northwest-1"]
-
-        if bucket_region in china_regions:
-            url = "https://{0}.s3.{1}.amazonaws.com.cn/{2}".format(
-                bucket_name, bucket_region, bucket_key
-            )
-        else:
-            url = "https://{0}.s3.amazonaws.com/{1}".format(
-                bucket_name, bucket_key
-            )
+        url = "https://{}.s3.{}.amazonaws.{}/{}".format(
+            bucket_name, bucket_region, self._domain_from_region(bucket_region), bucket_key
+        )
 
         self.logger.debug("%s - Template URL: '%s'", self.name, url)
 
@@ -318,6 +311,10 @@ class Template(object):
             return {"TemplateURL": url}
         else:
             return {"TemplateBody": self.body}
+
+    @staticmethod
+    def _domain_from_region(region):
+        return "com.cn" if region.startswith("cn-") else "com"
 
     @staticmethod
     def _render_jinja_template(template_dir, filename, jinja_vars):

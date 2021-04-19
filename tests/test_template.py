@@ -76,6 +76,11 @@ class TestTemplate(object):
             }
         )
 
+    def test_domain_from_region(self):
+        assert self.template._domain_from_region("us-east-1") == "com"
+        assert self.template._domain_from_region("cn-north-1") == "com.cn"
+        assert self.template._domain_from_region("cn-northwest-1") == "com.cn"
+
     def test_bucket_exists_with_bucket_that_exists(self):
         # connection_manager.call doesn't raise an exception, mimicing the
         # behaviour when head_bucket successfully executes.
