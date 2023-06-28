@@ -31,6 +31,7 @@ class TestStackOutputResolver(object):
         dependency.profile = "dependency_profile"
         dependency.region = "dependency_region"
         dependency.sceptre_role = "dependency_sceptre_role"
+        dependency.config = {}
 
         mock_get_output_value.return_value = "output_value"
 
@@ -64,6 +65,7 @@ class TestStackOutputResolver(object):
         dependency.profile = "dependency_profile"
         dependency.region = "dependency_region"
         dependency.sceptre_role = "dependency_sceptre_role"
+        dependency.config = {}
 
         mock_get_output_value.return_value = "output_value"
 
@@ -98,6 +100,7 @@ class TestStackOutputResolver(object):
         dependency.profile = "dependency_profile"
         dependency.region = "dependency_region"
         dependency.sceptre_role = "dependency_sceptre_role"
+        dependency.config = {}
 
         mock_get_output_value.return_value = "output_value"
 
@@ -134,6 +137,7 @@ class TestStackOutputResolver(object):
         dependency.profile = "dependency_profile"
         dependency.region = "dependency_region"
         dependency.sceptre_role = "dependency_sceptre_role"
+        dependency.config = {}
 
         mock_get_output_value.return_value = "output_value"
 
@@ -147,6 +151,41 @@ class TestStackOutputResolver(object):
         assert result == "output_value"
         mock_get_output_value.assert_called_once_with(
             "meh-vpc",
+            "VpcId",
+            profile="dependency_profile",
+            region="dependency_region",
+            sceptre_role="dependency_sceptre_role",
+        )
+
+    @patch("sceptre.resolvers.stack_output.StackOutput._get_output_value")
+    def test_resolve_with_explicit_stack_name(self, mock_get_output_value):
+        stack = MagicMock(spec=Stack)
+        stack.name = "my/stack"
+        stack.dependencies = []
+        stack.project_code = "project-code"
+        stack.name = "stack"
+        stack._connection_manager = MagicMock(spec=ConnectionManager)
+
+        dependency = MagicMock()
+        dependency.project_code = "meh"
+        dependency.name = "vpc"
+        dependency.profile = "dependency_profile"
+        dependency.region = "dependency_region"
+        dependency.sceptre_role = "dependency_sceptre_role"
+        dependency.config = {"stack_name": "my_explicit_stack_name"}
+
+        mock_get_output_value.return_value = "output_value"
+
+        stack_output_resolver = StackOutput("vpc.yaml::VpcId", stack)
+
+        stack_output_resolver.setup()
+        assert stack.dependencies == ["vpc.yaml"]
+
+        stack.dependencies = [dependency]
+        result = stack_output_resolver.resolve()
+        assert result == "output_value"
+        mock_get_output_value.assert_called_once_with(
+            "my_explicit_stack_name",
             "VpcId",
             profile="dependency_profile",
             region="dependency_region",

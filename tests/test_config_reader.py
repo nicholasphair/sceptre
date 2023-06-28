@@ -200,6 +200,11 @@ class TestConfigReader(object):
             "stack_group_path": "account/stack-group/region",
         }
 
+    def test_read_with_null_valued_key(self):
+        config_reader = ConfigReader(self.context)
+        config = config_reader._read("account/stack-group/region/ec2.yaml")
+        assert "stack_name" in config and config["stack_name"] is None
+
     def test_read_with_templated_config_file(self):
         self.context.user_variables = {"variable_key": "user_variable_value"}
         config_reader = ConfigReader(self.context)

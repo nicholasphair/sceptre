@@ -129,9 +129,11 @@ class StackOutput(StackOutputBase):
             if stack.name == friendly_stack_name
         )
 
-        stack_name = "-".join(
-            [stack.project_code, friendly_stack_name.replace("/", "-")]
-        )
+        stack_name = stack.config.get("stack_name")
+        if stack_name is None:
+            stack_name = "-".join(
+                [stack.project_code, friendly_stack_name.replace("/", "-")]
+            )
 
         return self._get_output_value(
             stack_name,
